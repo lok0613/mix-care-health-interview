@@ -3,11 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
+use App\Http\Resources\TaskResource;
+use App\Http\Resources\TaskCollection;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+
 
 class TaskController extends Controller
 {
+    use AuthorizesRequests, ValidatesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -21,7 +28,7 @@ class TaskController extends Controller
 
         $tasks = $query->paginate(10);
 
-        return $tasks;
+        return new TaskCollection($tasks);
     }
 
     /**
@@ -31,30 +38,40 @@ class TaskController extends Controller
     {
         $task = $request->user()->tasks()->create($request->validated());
 
-        return response()->json($task, 201);
+        return new TaskResource($task);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Task $task)
     {
-        //
+        $this->authorize('view', $task);
+
+        return new TaskResource($task);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(TaskRequest $request, Task $task)
     {
-        //
+        $this->authorize('update', $task);
+
+        $task->update($request->validated());
+
+        return new TaskResource($task);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Task $task)
     {
-        //
+        $this->authorize('delete', $task);
+
+        $task->delete();
+
+        return response()->json(['message' => 'Task deleted']);
     }
 }

@@ -26,7 +26,7 @@ it('allows successful task creation and validation error', function () {
     ]);
 
     $response->assertStatus(201)
-        ->assertJsonPath('title', 'My First Task');
+        ->assertJsonPath('data.title', 'My First Task');
 
     // ❌ Validation error (missing title)
     $badResponse = $this->actingAs($user, 'sanctum')->postJson('/api/tasks', [
@@ -37,9 +37,22 @@ it('allows successful task creation and validation error', function () {
         ->assertJsonValidationErrors(['title']);
 });
 
-// it('prevents accessing another user’s task', function () {
-//     // 
-// });
+it('prevents accessing another user’s task', function () {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    $task = Task::factory()->for($userA)->create();
+
+    // User B tries to access User A's task
+    $response = $this->actingAs($userB, 'sanctum')->getJson("/api/tasks/{$task->id}");
+
+    $response->assertStatus(403);
+
+    // User A tries to access it's own task
+    $response = $this->actingAs($userA, 'sanctum')->getJson("/api/tasks/{$task->id}");
+
+    $response->assertStatus(200);
+});
 
 // it('lists tasks filtered by status', function () {
 //     //
