@@ -1,0 +1,19 @@
+name: Mix Care Health CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4.1'
+
+      - run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - run: php artisan test      
