@@ -5,16 +5,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-// it("shows all tasks", function () {
-//     $user = Task::factory()->create();
-//     Task::factory()->count(15)->create(['user_id' => $user->id]);
-
-//     $response = $this->getJson('/api/tasks');
-
-//     $response->assertStatus(200);
-//     $response->assertJsonCount(10, 'data'); // Assuming pagination of 10 per page
-// });
-
 it('allows successful task creation and validation error', function () {
     $user = User::factory()->create();
 
@@ -54,6 +44,16 @@ it('prevents accessing another user’s task', function () {
     $response->assertStatus(200);
 });
 
-// it('lists tasks filtered by status', function () {
-//     //
-// });
+it('lists tasks filtered by status', function () {
+    $user = User::factory()->create();
+
+    Task::factory()->for($user)->create(['status' => 'pending']);
+    Task::factory()->for($user)->create(['status' => 'completed']);
+
+    // Filter by pending
+    $response = $this->actingAs($user, 'sanctum')->getJson('/api/tasks?status=pending');
+
+    $response->assertStatus(200)
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.status', 'pending');
+});

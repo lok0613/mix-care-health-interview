@@ -11,6 +11,8 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 
 
+const PAGINATION_COUNT = 10;
+
 class TaskController extends Controller
 {
     use AuthorizesRequests, ValidatesRequests;
@@ -20,13 +22,13 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Task::query();
+        $query = Task::where('user_id', $request->user()->id);
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-        $tasks = $query->paginate(10);
+        $tasks = $query->paginate(PAGINATION_COUNT);
 
         return new TaskCollection($tasks);
     }
