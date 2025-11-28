@@ -18,12 +18,12 @@ class Task extends Model
         return $this->belongsTo(User::class);
     }
 
-    protected static function booted()
-    {
-        static::addGlobalScope('owned', function ($query) {
-            if (Auth::check()) {
-                $query->where('user_id', Auth::id());
-            }
-        });
-    }
+    // protected static function booted()
+    // {
+    //     static::addGlobalScope('owned', function ($query) {
+    //         if (Auth::check()) {
+    //             $query->where('user_id', Auth::id());
+    //         }
+    //     });
+    // }
 }
