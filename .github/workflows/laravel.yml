@@ -16,6 +16,8 @@ jobs:
 
       - run: composer install --no-progress --prefer-dist --optimize-autoloader
 
+      - run: php artisan key:generate --env=testing
+
       - run: touch database/testing.sqlite
       
       - run: php artisan migrate --force
